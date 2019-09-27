@@ -17,6 +17,7 @@ import (
 	"github.com/wozz/modpox/upstream"
 )
 
+// Config is used to configure the gitlab upstream
 type Config struct {
 	Upstream upstream.Upstream
 	Host     string
@@ -29,6 +30,7 @@ type privateGitLabUpstream struct {
 	upstream upstream.Upstream
 }
 
+// NewGitLabUpstream creates a new upstream for a private gitlab instance
 func NewGitLabUpstream(config *Config) upstream.Upstream {
 	hc := &http.Client{
 		Timeout: time.Minute,

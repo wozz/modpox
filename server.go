@@ -16,10 +16,12 @@ var (
 	token     = ""
 )
 
+// SetToken sets a token to be used for private gitlab API interaction
 func SetToken(t string) {
 	token = t
 }
 
+// Server is the main go mod proxy
 type Server struct {
 	srv     *http.Server
 	backend Backend
@@ -39,6 +41,8 @@ func newHandler(srv *Server) func(http.ResponseWriter, *http.Request) {
 	}
 }
 
+// NewServer creates a new Server with default settings
+// This will likely change to be more configurable in the future
 func NewServer() *Server {
 	localCache := newCache()
 	upstream1 := &blacklistUpstream{
@@ -75,6 +79,7 @@ func NewServer() *Server {
 	return s
 }
 
+// Start starts the server asyncronously and returns immediately
 func (s *Server) Start() {
 	go func() {
 		if err := s.srv.ListenAndServe(); err != nil {

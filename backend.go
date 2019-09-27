@@ -8,6 +8,7 @@ import (
 	"github.com/wozz/modpox/upstream"
 )
 
+// Backend is an upstream that can also store data as an intermediate cache
 type Backend interface {
 	upstream.Upstream
 
