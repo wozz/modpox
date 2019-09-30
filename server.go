@@ -50,7 +50,6 @@ func NewServer() *Server {
 		upstream: &cachingUpstream{
 			cache: localCache,
 			upstream: &sumDBUpstream{
-				endpoint: "sum.golang.org",
 				upstream: &randomUpstream{
 					upstreams: []upstream.Upstream{
 						&proxyUpstream{endpoint: upstreamEndpoint},

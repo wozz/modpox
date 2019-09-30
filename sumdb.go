@@ -12,18 +12,34 @@ import (
 	"github.com/wozz/modpox/upstream"
 )
 
+var supportedSumDatabases = [...]string{
+	"sum.golang.org",
+}
+
 type sumDBUpstream struct {
 	upstream upstream.Upstream
-	endpoint string
 }
 
 func (sdb *sumDBUpstream) Get(key string) ([]byte, int, error) {
 	if strings.HasPrefix(key, "/sumdb/") {
-		// ensure the client knows to use this sumdb
 		if strings.HasSuffix(key, "/supported") {
-			return []byte{}, 200, nil
+			for _, db := range supportedSumDatabases {
+				if key == fmt.Sprintf("/sumdb/%s/supported", db) {
+					return []byte{}, 200, nil
+				}
+			}
+			return []byte{}, 404, nil
 		}
-		log.Printf("query sumdb: %s %s", sdb.endpoint, key)
+		endpoint := ""
+		for _, db := range supportedSumDatabases {
+			if strings.HasPrefix(key, fmt.Sprintf("/sumdb/%s/", db)) {
+				endpoint = db
+			}
+		}
+		if endpoint == "" {
+			return []byte{}, 404, nil
+		}
+		log.Printf("query sumdb: %s %s", endpoint, key)
 		keyParts := strings.Split(key, "/")
 		if len(keyParts) < 3 {
 			return nil, 0, fmt.Errorf("invalid sumdb key: %s", key)
@@ -32,7 +48,7 @@ func (sdb *sumDBUpstream) Get(key string) ([]byte, int, error) {
 		hc := &http.Client{
 			Timeout: time.Minute,
 		}
-		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://%s/%s", sdb.endpoint, realPath), nil)
+		req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://%s/%s", endpoint, realPath), nil)
 		if err != nil {
 			log.Printf("could not create http req: %v", err)
 			return nil, 0, fmt.Errorf("%w: could not create http req", err)
